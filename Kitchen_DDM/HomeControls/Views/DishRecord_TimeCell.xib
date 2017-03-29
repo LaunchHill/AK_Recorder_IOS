@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Record" id="KGk-i7-Jjw" customClass="DishRecord_TimeCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="30"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="29"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EoZ-J9-psf">
+                        <rect key="frame" x="63" y="10" width="45" height="1"/>
+                        <color key="backgroundColor" red="0.74901960784313726" green="0.74901960784313726" blue="0.74901960784313726" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="bz8-BI-sHQ"/>
+                        </constraints>
+                    </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10-min rest" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GdD-OD-CGM">
+                        <rect key="frame" x="120" y="0.0" width="81" height="21"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="2wy-7A-cpj"/>
+                            <constraint firstAttribute="width" constant="81" id="g8c-Xb-EKo"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="13"/>
+                        <color key="textColor" red="0.44705882352941173" green="0.44705882352941173" blue="0.44705882352941173" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Wr-1I-Vqr">
+                        <rect key="frame" x="213" y="10" width="52" height="1"/>
+                        <color key="backgroundColor" red="0.74901960779999999" green="0.74901960779999999" blue="0.74901960779999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="1" id="SCH-B3-2sq"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="EoZ-J9-psf" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" multiplier="0.7" id="CM5-TJ-7KH"/>
+                    <constraint firstItem="EoZ-J9-psf" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leadingMargin" constant="55" id="Xkn-MI-iql"/>
+                    <constraint firstAttribute="trailing" secondItem="6Wr-1I-Vqr" secondAttribute="trailing" constant="55" id="cyk-kr-8fL"/>
+                    <constraint firstItem="GdD-OD-CGM" firstAttribute="leading" secondItem="EoZ-J9-psf" secondAttribute="trailing" constant="12" id="dVt-wU-Efv"/>
+                    <constraint firstItem="6Wr-1I-Vqr" firstAttribute="leading" secondItem="GdD-OD-CGM" secondAttribute="trailing" constant="12" id="ii9-Du-nOk"/>
+                    <constraint firstItem="6Wr-1I-Vqr" firstAttribute="top" secondItem="EoZ-J9-psf" secondAttribute="top" id="kGM-nI-Lby"/>
+                    <constraint firstItem="GdD-OD-CGM" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="n7x-BP-Tqu"/>
+                    <constraint firstItem="GdD-OD-CGM" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="xwK-jC-s04"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="contentLab" destination="GdD-OD-CGM" id="bsw-Qi-iqP"/>
+            </connections>
+            <point key="canvasLocation" x="-180" y="20"/>
+        </tableViewCell>
+    </objects>
+</document>
