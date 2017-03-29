@@ -50,7 +50,6 @@
         urlStr=@"";
     }
     [cell.imgView sd_setImageWithURL:[NSURL URLWithString:(NSString*)urlStr] placeholderImage:[UIImage imageNamed:@"dishPhotoBlank"] options:SDWebImageRetryFailed completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
-        
     }];
     
     return cell;
