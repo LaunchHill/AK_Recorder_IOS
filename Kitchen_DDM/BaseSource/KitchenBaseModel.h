@@ -73,6 +73,6 @@
 @property (strong,nonatomic) NSString *id;
 @property (strong,nonatomic) NSDictionary *main_image;
 @property (strong,nonatomic) NSString *title;
-
+@property (strong,nonatomic) NSString *step_id;
 
 @end

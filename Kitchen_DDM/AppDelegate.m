@@ -45,6 +45,18 @@
     } failure:^(id obj) {
         
     }];
+//     NSString *mp3Path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:@"com.fritt.Chat.audioCache"];
+//    NSFileManager * fileManager = [NSFileManager defaultManager];
+//   NSArray * tempFileList = [[NSArray alloc] initWithArray:[fileManager contentsOfDirectoryAtPath:mp3Path error:nil]];
+//    for (NSString *fileName in tempFileList)
+//    {
+//        NSError *error=nil;
+//        NSLog(@"name===%@", fileName);
+//        [fileManager removeItemAtPath:[mp3Path stringByAppendingPathComponent:fileName] error:&error];
+//        if (error) {
+//            return NO;
+//        }
+//    }
     return YES;
 }
 

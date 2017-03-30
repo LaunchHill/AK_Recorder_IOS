@@ -19,7 +19,16 @@
 @end
 
 @implementation CreateNewDishViewController
-
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[UINavigationBar appearance] setTranslucent:YES];
+}
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[UINavigationBar appearance] setTranslucent:NO];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setTitle:@"Create New Dish"];
@@ -30,11 +39,12 @@
 #pragma mark - Action
 -(void)NextStep:(UIBarButtonItem*)sender
 {
-    if (_dishNameTF.text.length==0) {
-        
+    if (_dishNameTF.text.length!=0) {
+        [self updateSteps];
+    }else{
+        [self showMBProgressWithtMessage:@"菜谱名不能为空!"];
+        [self hiddenMBProgress];
     }
-    AddListViewController *vc=[[AddListViewController alloc]initWithNibName:@"AddListViewController" bundle:nil];
-    [self.navigationController pushViewController:vc animated:YES];
 }
 - (IBAction)photoSelectedAction:(UIButton *)sender {
     UIAlertController *alertController=[UIAlertController alertControllerWithTitle:@"选择" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
@@ -63,10 +73,10 @@
 -(void)textViewDidChange:(UITextView *)textView
 {
     if ([CommonDefine convertToInt:textView.text]==0) {
-       _numberLab.text=@"0/120";
+        _numberLab.text=@"0/120";
         _introductionTV.text=@"Introduction";
     }else if([CommonDefine convertToInt:textView.text]<=120){
-         _introductionTV.text=@"";
+        _introductionTV.text=@"";
         _numberLab.text=[NSString stringWithFormat:@"%d/120",[CommonDefine convertToInt:textView.text]];
     }
 }
@@ -100,6 +110,28 @@
         
     }
 }
+#pragma mark - NetWork
+-(void)updateSteps{
+    __weak typeof(self) weakSelf=self;
+    NSMutableDictionary *dic=[[NSMutableDictionary alloc]init];
+    NSMutableDictionary *tmpDic=[[NSMutableDictionary alloc]init];
+    [tmpDic setValue:@"1" forKey:@"user_id"];
+    [tmpDic setValue:_dishNameTF.text forKey:@"title"];
+    [tmpDic setValue:[@"data:image/png;base64," stringByAppendingString:[CommonDefine base64EncodedString:_imageView.image]] forKey:@"main_image"];
+    [dic setObject:tmpDic forKey:@"recipe"];
+    [self showMBProgressWithtMessage:@"新建中..."];
+    [[NetManager sharedManager] postRequestWithPostParamDic:dic requestUrl:@"/api/recipes" success:^(id responseDic) {
+        DishListModel *model=[DishListModel instancefromJsonDic:responseDic[@"recipe"]];
+         [weakSelf hiddenMBProgress];
+        AddListViewController *vc=[[AddListViewController alloc]initWithNibName:@"AddListViewController" bundle:nil];
+        vc.isNewDish=YES;
+        vc.dishModel=model;
+        [weakSelf.navigationController pushViewController:vc animated:YES];
+       
+    } failure:^(id errorString) {
+        [self showLabelMBProgressWithMessage:errorString];
+    }];
+}
 #pragma mark - ActionSheetDelegate
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -107,13 +139,13 @@
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

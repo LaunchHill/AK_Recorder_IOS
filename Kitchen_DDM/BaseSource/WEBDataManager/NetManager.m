@@ -63,8 +63,8 @@ static NetManager *_manager;
             int status=[[responseObject objectForKey:@"code"] intValue];
             if (status == 0){
                 //请求成功
-                ResponseBodyEntity *body=[ResponseBodyEntity instancefromJsonDic:responseObject];
-                success(body);
+//                ResponseBodyEntity *body=[ResponseBodyEntity instancefromJsonDic:responseObject];
+                success(responseObject);
             }else{
                 //请求失败
                 NSString *resultString=[responseObject objectForKey:@"message"];
@@ -118,6 +118,60 @@ static NetManager *_manager;
             if (status == 0){
                 //请求成功
 //                ResponseBodyEntity *body=[ResponseBodyEntity instancefromJsonDic:responseObject];
+                success(responseObject);
+            }else{
+                //请求失败
+                NSString *resultString=[responseObject objectForKey:@"message"];
+                failure(resultString);
+            }
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failure(@"网络链接出错，请检查网络状态");
+        [MBProgressHUD showError:@"网络链接出错，请检查网络状态" toView:nil];
+    }];
+}
+//公共patch接口
+- (void)patchRequestWithPostParamDic:(NSMutableDictionary*)postParamDic
+                        requestUrl:(NSString*)url
+                           success:(void (^)(id responseDic))success
+                           failure:(void(^)(id errorString))failure
+
+{
+    //    if ([DataManager sharedManager].userInfoModel.access_token) {
+    //        [postParamDic setObject:[DataManager sharedManager].userInfoModel.access_token forKey:@"access_token"];
+    //    }else{
+    //        [postParamDic setObject:@"" forKey:@"access_token"];
+    //    }
+    //    [postParamDic setObject:@"mobile" forKey:@"from"];
+    //    [postParamDic setObject:@"ios" forKey:@"os"];
+    //    [postParamDic setObject:APP_VERSION forKey:@"app_version"];
+    //    [postParamDic setValue:DEVICE_TOKEN forKey:@"device_id"];
+    //    [postParamDic setObject:[CommonDefine md5HexDigest:[postParamDic objectForKey:@"func"] jsonString:[postParamDic objectForKey:@"data"]] forKey:@"sign"];
+    //    [postParamDic setValue:API_VERSION forKey:@"api_version"];
+    //
+    //    if ([LocalLanguage containsString:SimplifiedChinese]) {
+    //        //中文
+    //        [postParamDic setValue:@"zh_CN" forKey:@"locale"];
+    //
+    //    }else if([LocalLanguage containsString:EnglishUS])
+    //    {
+    //        //英文
+    //        [postParamDic setValue:@"en" forKey:@"locale"];
+    //    }
+    NSString *tmpUrl=[BASE_URL stringByAppendingString:url];
+    //这个后面在做多语言的时候，需要扩展下
+    __block AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+    [manager PATCH:tmpUrl parameters:postParamDic success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSLog(@"response:===\n%@",responseObject);
+        if (responseObject == nil)
+        {
+            failure(@"请求出错,请重新发起请求");
+            [MBProgressHUD showError:LocalizedString(@"请求出错,请重新发起请求") toView:nil];
+        }else{
+            int status=[[responseObject objectForKey:@"code"] intValue];
+            if (status == 0){
+                //请求成功
+                //                ResponseBodyEntity *body=[ResponseBodyEntity instancefromJsonDic:responseObject];
                 success(responseObject);
             }else{
                 //请求失败

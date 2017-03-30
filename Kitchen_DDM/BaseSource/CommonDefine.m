@@ -422,4 +422,101 @@
     return theImage;
 }
 
++(NSDictionary *)analyticalData:(NSString *)str
+{
+    // 把string以分行符区分转成数组
+    
+    NSArray * arr = [str componentsSeparatedByString:@"<br>"];
+    
+    NSMutableArray * xArr  = [[NSMutableArray alloc] init] ;
+    NSMutableArray * stepArr = [[NSMutableArray alloc] init];
+    [stepArr removeAllObjects];
+    
+    NSMutableArray * allStepArr = [[NSMutableArray alloc] init];
+    NSMutableDictionary * stepDic = [[NSMutableDictionary alloc] init];
+    NSInteger xIndex = 0;
+    
+    NSMutableArray * midiaMuArr = [[NSMutableArray alloc] init];
+    
+    // 取出相应开头的字符串放到相应的数组中
+    for (NSString * strIndex in arr) {
+        
+        if (strIndex.length >= 2) {
+            
+            if ([strIndex rangeOfString:@"X:"].location != NSNotFound || [strIndex rangeOfString:@"x:"].location != NSNotFound) {
+                
+                //如果有步序指令放入字典
+                if ((unsigned long)stepArr.count >=1 ) {
+                    NSArray * arr = [stepArr mutableCopy];
+                    [stepDic setObject:arr forKey:[NSString stringWithFormat:@"%ld",xIndex-1]];
+                    [stepArr removeAllObjects];
+                }
+                
+                [xArr addObject:strIndex];
+                xIndex ++ ;
+                
+            }else if ([strIndex rangeOfString:@"P:"].location != NSNotFound ) {
+                
+                //功率
+                [stepArr addObject:strIndex];
+                
+            }else if ([[strIndex substringWithRange:NSMakeRange(0,1)]rangeOfString:@"T"].location != NSNotFound) {
+                
+                //时间
+                [stepArr addObject:strIndex];
+                
+            }else if ([[strIndex substringWithRange:NSMakeRange(0,2)]rangeOfString:@"WT"].location != NSNotFound ) {
+                
+                //等待温度达到一定的值
+                [stepArr addObject:strIndex];
+                
+            }else if ([[strIndex substringWithRange:NSMakeRange(0,1)]rangeOfString:@"C"].location != NSNotFound ) {
+                
+                //温度
+                [stepArr addObject:strIndex];
+                
+            }else if ([[strIndex substringWithRange:NSMakeRange(0,2)]rangeOfString:@"WC"].location != NSNotFound ) {
+                
+                //等待温度达到一定的值
+                [stepArr addObject:strIndex];
+                
+            }else if ([[strIndex substringWithRange:NSMakeRange(0,2)]rangeOfString:@"M:"].location != NSNotFound ) {
+                if (strIndex.length == 2) {
+                    [midiaMuArr addObject:@""];
+                }else{
+                    [midiaMuArr addObject:[strIndex substringFromIndex:2]];
+                }
+            }
+        }
+    }
+    //把 X 数组取出来放到步骤数组里
+    for (NSString * str in xArr) {
+        [allStepArr addObject:str];
+    }
+    if (stepArr.count > 0) {
+        NSArray * arr = [stepArr mutableCopy];
+        [stepDic setObject:arr forKey:[NSString stringWithFormat:@"%ld",xIndex]];
+    }
+    NSDictionary * dic = @{
+                           @"AllStepArr":allStepArr,//x的集合
+                           @"StepDic":stepDic,//x下的指令集合
+                           @"midiaMuArr":midiaMuArr,//图片集合
+                           };
+    
+    return dic;
+}
+/*
+ UIimage base64编码
+ */
+
++(NSString*)base64EncodedString:(UIImage*)image
+{
+    NSData *data = UIImagePNGRepresentation(image);
+    if (data.length>1024*1024*0.002) {
+        NSData * imageData = UIImageJPEGRepresentation(image, 0.01);
+        UIImage * newImage = [UIImage imageWithData:imageData];
+        data=UIImagePNGRepresentation(newImage);
+    }
+    return [data base64EncodedStringWithOptions:0];
+}
 @end

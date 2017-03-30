@@ -29,22 +29,28 @@
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    [[UINavigationBar appearance] setTranslucent:NO];
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIKeyboardWillHideNotification object:nil];
     [[NSNotificationCenter defaultCenter]removeObserver:self name:UIKeyboardDidChangeFrameNotification object:nil];
-    
+    [[UINavigationBar appearance] setTranslucent:NO];
+}
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    _tableView.contentInset = UIEdgeInsetsZero;
+    _tableView.scrollIndicatorInsets = UIEdgeInsetsZero;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setTitle:@"Create Message"];
     _photoEditType=0;
+//    [[UINavigationBar appearance] setTranslucent:NO];;
     [_tableView setTableFooterView:[UIView new]];
-    if (_dishModel) {
+    if (!_isNewDish) {
         [self getRecipeDetail];
     }else{
         _dataArray=[[NSMutableArray alloc]init];
     }
+    
     // Do any additional setup after loading the view from its nib.
     UIBarButtonItem *bar=[[UIBarButtonItem alloc]initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(NextStep:)];
     [self.navigationItem setRightBarButtonItem:bar];
@@ -66,7 +72,7 @@
                     break;
                 case 1:{
                     [weakSelf.dataArray removeObjectAtIndex:weakSelf.editView.tag-100];
-                   
+                    
                 }
                     break;
                 case 2:{
@@ -125,9 +131,14 @@
 #pragma mark - Action
 -(void)NextStep:(UIBarButtonItem*)sender
 {
-    [self updatePhotos];
-//    DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
-//    [self.navigationController pushViewController:vc animated:YES];
+    if (_dataArray.count>0) {
+        [self updatePhotos];
+    }else{
+        DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
+        vc.dishModel=_dishModel;
+        vc.isNewDish=_isNewDish;
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 - (IBAction)addMessage:(UIButton *)sender {
     if (_editView) {
@@ -301,10 +312,11 @@
     [dic setValue:tmpArr forKey:@"materials"];
     [[NetManager sharedManager] postRequestWithPostParamDic:dic requestUrl:[NSString stringWithFormat:@"/api/recipes/%@/materials",_dishModel.id] success:^(id responseDic) {
         [weakSelf hiddenMBProgress];
-            DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
-            [weakSelf.navigationController pushViewController:vc animated:YES];
+        DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
+        vc.dishModel=weakSelf.dishModel;
+        [weakSelf.navigationController pushViewController:vc animated:YES];
     } failure:^(id errorString) {
-    
+        
     }];
 }
 //拼接图片链接
@@ -334,7 +346,7 @@
                     images--;
                     //
                     [tmpPhotos replaceObjectAtIndex:d withObject:urlString];
-                     model.photos=tmpPhotos;
+                    model.photos=tmpPhotos;
                     [weakSelf.dataArray replaceObjectAtIndex:i withObject:model];
                     if (images==0) {
                         NSLog(@"%@",weakSelf.dataArray);
@@ -343,7 +355,7 @@
                 } failure:^(id errorString) {
                     
                 }];
-
+                
             }
         }
         if (i==_dataArray.count-1&&images==0){
@@ -352,7 +364,7 @@
             }
             [self updateSteps];
         }
-
+        
     }
 }
 -(void)updatePhoto:(UIImage*)image{

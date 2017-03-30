@@ -10,4 +10,5 @@
 
 @interface AddListViewController : BaseViewController
 @property (strong, nonatomic) DishListModel *dishModel;
+@property (assign, nonatomic) BOOL isNewDish;
 @end

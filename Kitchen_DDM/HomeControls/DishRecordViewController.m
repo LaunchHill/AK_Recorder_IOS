@@ -22,6 +22,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (weak, nonatomic) IBOutlet UIButton *RecordBtn;
 @property (weak, nonatomic) IBOutlet UIImageView *photoView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *backViewHeightLayout;
+
 
 @property (strong, nonatomic) RecordView      *recordView; /**< 语音聊天录音指示view */
 @property (strong, nonatomic) Mp3Recorder *MP3;
@@ -32,6 +34,7 @@
 
 @property (strong, nonatomic) NSMutableArray *photosArray;/**图片资源*/
 @property (strong, nonatomic) NSMutableDictionary *photosDic;/**图片排序*/
+@property (strong, nonatomic) NSMutableArray  *MP3PathsArray;/**语音本地路径*/
 @property (strong, nonatomic) CustomPhotoLibraryView *photoLibraryView;
 
 /** 监督俩条步序的间隔最小时间*/
@@ -59,7 +62,6 @@
     [super viewDidLoad];
     [self setTitle:@"Steps Recording"];
     [XMAVAudioPlayer sharePlayer].delegate = self;
-    
     [CommonUI drawCircle:_RecordBtn radius:30 borderWidth:0 borderColor:nil];
     self.recordView.hidden = YES;
     [self.view addSubview:self.recordView];
@@ -70,6 +72,10 @@
     self.MP3 = [[Mp3Recorder alloc] initWithDelegate:self];
     UIBarButtonItem *bar=[[UIBarButtonItem alloc]initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(NextStep:)];
     [self.navigationItem setRightBarButtonItem:bar];
+    if (!_isNewDish) {
+         [self getStepDetail];
+        _backViewHeightLayout.constant=0;
+    }
     // Do any additional setup after loading the view from its nib.
 }
 #pragma mark - 初始化
@@ -90,6 +96,12 @@
         _recordView.backgroundColor    = [UIColor colorWithWhite:0.3 alpha:1];
     }
     return _recordView;
+}
+-(NSMutableArray*)MP3PathsArray{
+    if (!_MP3PathsArray) {
+        _MP3PathsArray=[[NSMutableArray alloc]init];
+    }
+    return _MP3PathsArray;
 }
 - (NSMutableDictionary*)photosDic{
     if (!_photosDic) {
@@ -372,6 +384,7 @@
 }
 - (void)sendVoiceMessage:(NSString *)voiceFileName seconds:(NSTimeInterval)seconds
 {
+    [self.MP3PathsArray addObject:voiceFileName];
     NSMutableDictionary *voiceMessageDict = [NSMutableDictionary dictionary];
     [voiceMessageDict setValue:@"0" forKey:@"interval"];
     voiceMessageDict[@"content"]                           = [_resultFromJson copy];
@@ -533,7 +546,26 @@
         }
     }
 }
-
+#pragma mark - NetWorking
+-(void)getStepDetail{
+    __weak typeof(self) weakSelf=self;
+    [[NetManager sharedManager] getRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
+        NSDictionary *dic=[CommonDefine analyticalData:responseDic[@"step"] [@"steps"]];
+        weakSelf.dataArray=[NSMutableArray arrayWithArray:[DishStepModel instancesFromJsonArray:responseDic[@"step"]]];
+        [weakSelf.tableView reloadData];
+    } failure:^(id errorString) {
+        
+    }];
+}
+-(void)updateStepDetail{
+    __weak typeof(self) weakSelf=self;
+    [[NetManager sharedManager] patchRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
+        weakSelf.dataArray=[NSMutableArray arrayWithArray:[DishStepModel instancesFromJsonArray:responseDic[@"step"]]];
+        [weakSelf.tableView reloadData];
+    } failure:^(id errorString) {
+        
+    }];
+}
 #pragma mark - Memory
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

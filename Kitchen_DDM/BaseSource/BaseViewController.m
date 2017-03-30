@@ -52,7 +52,7 @@
 //    [self baseViewHidden];
     
     //修改导航栏背景图片
-    [self setNavImage];
+//    [self setNavImage];
 }
 
 -(void)setNavImageForLine
@@ -101,6 +101,7 @@
 -(void)showLabelMBProgressWithMessage:(NSString*)message
 {
     self.hud.labelText=message;
+     [_hud hide:YES afterDelay:1.0];
 }
 /**
  显示loading、文本 and 描述

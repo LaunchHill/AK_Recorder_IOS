@@ -52,6 +52,10 @@
 - (void)UserLogin:(NSMutableDictionary *)params
           success:(void (^)(id responseObject))success
           failure:(void (^)(id errorString))failure;
-
+//公共patch接口
+- (void)patchRequestWithPostParamDic:(NSMutableDictionary*)postParamDic
+                          requestUrl:(NSString*)url
+                             success:(void (^)(id responseDic))success
+                             failure:(void(^)(id errorString))failure;
 -(void)getQiNiuToken:(NSMutableDictionary *)params success:(void (^)(id))success failure:(void (^)(id))failure;
 @end
