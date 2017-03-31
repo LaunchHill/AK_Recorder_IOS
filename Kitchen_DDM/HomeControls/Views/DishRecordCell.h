@@ -10,7 +10,7 @@
 #import "Masonry.h"
 #import "ChatUntiles.h"
 
-@interface DishRecordCell : UITableViewCell
+@interface DishRecordCell : UITableViewCell<UITextFieldDelegate>
 
 @property (nonatomic, strong) UIImageView *messageContentBackgroundImageView;
 /**
@@ -43,16 +43,19 @@
 #pragma mark - 公有方法
 
 - (void)setup;
-- (CGFloat)configureCellWithData:(id)data;
+- (CGFloat)configureCellWithData:(DishListStepModel*)data;
 @property (nonatomic, strong) UIImageView *messageVoiceStatusIV;
 @property (nonatomic, strong) UILabel *messageVoiceSecondsL;
 @property (nonatomic, strong) UIActivityIndicatorView *messageIndicatorV;
 @property (nonatomic, assign) VoiceMessageState voiceMessageState;
-@property (nonatomic, strong) NSDictionary *dataDic;
+@property (nonatomic, strong) DishListStepModel *dataModel;
 @property (nonatomic, copy)   CommonBlock voiceAction;
 @property (nonatomic, strong) UILabel *stepLab;
 @property (nonatomic, strong) UILabel *contentLab;
 @property (nonatomic, strong) UIView *emptyView;
-@property (nonatomic, strong) UIButton *stepImage;
+@property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, strong) UIImageView *stepImage;
 @property (nonatomic, copy) CommonBlock photoAction;
+@property (nonatomic, assign) BOOL isEdit;
+@property (nonatomic, copy) CommonBlockDouble downAction;
 @end

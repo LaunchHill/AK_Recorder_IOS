@@ -11,7 +11,7 @@
 #import "DishStepCell.h"
 #import "DishRecordViewController.h"
 #import "PhotoBrowserView.h"
-
+#import "EditDishMenuViewController.h"
 @interface AddListViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIActionSheetDelegate>
 @property (strong, nonatomic) EditView *editView;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
@@ -50,7 +50,6 @@
     }else{
         _dataArray=[[NSMutableArray alloc]init];
     }
-    
     // Do any additional setup after loading the view from its nib.
     UIBarButtonItem *bar=[[UIBarButtonItem alloc]initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(NextStep:)];
     [self.navigationItem setRightBarButtonItem:bar];
@@ -133,10 +132,14 @@
 {
     if (_dataArray.count>0) {
         [self updatePhotos];
-    }else{
+    }else if(!_dishModel.step_id){
         DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
         vc.dishModel=_dishModel;
-        vc.isNewDish=_isNewDish;
+        [self.navigationController pushViewController:vc animated:YES];
+    }else{
+        EditDishMenuViewController *vc=[[EditDishMenuViewController alloc]initWithNibName:@"EditDishMenuViewController" bundle:nil];
+         vc.isNewDish=_isNewDish;
+          vc.dishModel=_dishModel;
         [self.navigationController pushViewController:vc animated:YES];
     }
 }
@@ -312,9 +315,16 @@
     [dic setValue:tmpArr forKey:@"materials"];
     [[NetManager sharedManager] postRequestWithPostParamDic:dic requestUrl:[NSString stringWithFormat:@"/api/recipes/%@/materials",_dishModel.id] success:^(id responseDic) {
         [weakSelf hiddenMBProgress];
-        DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
-        vc.dishModel=weakSelf.dishModel;
-        [weakSelf.navigationController pushViewController:vc animated:YES];
+        if(!weakSelf.dishModel.step_id){
+            DishRecordViewController *vc=[[DishRecordViewController alloc]initWithNibName:@"DishRecordViewController" bundle:nil];
+            vc.dishModel=_dishModel;
+            [weakSelf.navigationController pushViewController:vc animated:YES];
+        }else{
+            EditDishMenuViewController *vc=[[EditDishMenuViewController alloc]initWithNibName:@"EditDishMenuViewController" bundle:nil];
+            vc.isNewDish=_isNewDish;
+            vc.dishModel=_dishModel;
+            [weakSelf.navigationController pushViewController:vc animated:YES];
+        }
     } failure:^(id errorString) {
         
     }];
@@ -355,7 +365,6 @@
                 } failure:^(id errorString) {
                     
                 }];
-                
             }
         }
         if (i==_dataArray.count-1&&images==0){

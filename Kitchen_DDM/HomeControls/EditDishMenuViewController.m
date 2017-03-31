@@ -19,7 +19,8 @@
 @property (strong, nonatomic) CustomPhotoLibraryView *photoLibraryView;
 @property (assign, nonatomic) CGPoint contentoffset;
 @property (nonatomic, strong) PhotoBrowserView *browserView;
-@property (nonatomic, strong) NSDictionary *selectedDic;
+@property (nonatomic, strong) DishListStepModel *selectedDic;
+@property (nonatomic, strong) NSString *stepsString;
 @end
 
 @implementation EditDishMenuViewController
@@ -27,7 +28,11 @@
 {
     [super viewWillAppear:animated];
     [[UINavigationBar appearance] setTranslucent:YES];
-    
+    IQKeyboardManager *manager = [IQKeyboardManager sharedManager];
+    manager.enable = YES;
+    manager.shouldResignOnTouchOutside = YES;
+    manager.shouldToolbarUsesTextFieldTintColor = YES;
+    manager.enableAutoToolbar = NO;
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
@@ -36,13 +41,37 @@
     [[XMAVAudioPlayer sharePlayer] stopAudioPlayer];
     [XMAVAudioPlayer sharePlayer].index = NSUIntegerMax;
     [XMAVAudioPlayer sharePlayer].URLString = nil;
-    
+    IQKeyboardManager *manager = [IQKeyboardManager sharedManager];
+    manager.enable = NO;
+    manager.shouldResignOnTouchOutside = YES;
+    manager.shouldToolbarUsesTextFieldTintColor = YES;
+    manager.enableAutoToolbar = NO;
+
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setTitle:@"Steps Edit"];
     [XMAVAudioPlayer sharePlayer].delegate = self;
+    if (!_isNewDish) {
+        [self getStepDetail];
+    }
+    UIBarButtonItem *bar=[[UIBarButtonItem alloc]initWithTitle:@"Down" style:UIBarButtonItemStylePlain target:self action:@selector(Down:)];
+    UIBarButtonItem *bar1=[[UIBarButtonItem alloc]initWithTitle:@"DELETE" style:UIBarButtonItemStylePlain target:self action:@selector(Edit:)];
+    [self.navigationItem setRightBarButtonItems:@[bar,bar1]];
     // Do any additional setup after loading the view from its nib.
+}
+#pragma mark - Action
+-(void)Down:(UIBarButtonItem*)bar{
+    [self  updateStepDetail];
+}
+-(void)Edit:(UIBarButtonItem*)bar{
+    if ([bar.title isEqualToString:@"DELETE"]) {
+        _tableView.editing=YES;
+        bar.title=@"COMPLETE";
+    }else{
+        _tableView.editing=NO;
+        bar.title=@"DELETE";
+    }
 }
 #pragma mark - 初始化
 -(PhotoBrowserView*)browserView{
@@ -50,16 +79,17 @@
     if (!_browserView) {
         __weak typeof(self)weakSelf = self;
         DishStepModel *model=[[DishStepModel alloc]init];
-        model.title=_selectedDic[@"content"];
-        model.photos=@[_selectedDic[@"image"]];
+        model.title=_selectedDic.title;
+        model.photos=@[_selectedDic.image];
+        
         _browserView=[[PhotoBrowserView alloc]initWithFrame:self.view.bounds dataWith:model editType:ReadOnly];
         _browserView.alpha=0;
         _browserView.hiddenEndAction=^(id obj){
             weakSelf.browserView=nil;
             };
         _browserView.removeAction=^(id obj){
-            NSMutableDictionary *dic=(NSMutableDictionary*)weakSelf.dataArray[weakSelf.browserView.tag];
-            [dic removeObjectForKey:@"image"];
+            DishListStepModel *dic=weakSelf.dataArray[weakSelf.browserView.tag];
+            dic.image=nil;
             [weakSelf.tableView reloadData];
             weakSelf.photoLibraryView.selected=10000;
         };
@@ -76,8 +106,8 @@
         [self.view addSubview:_photoLibraryView];
         __weak typeof(self)weakSelf = self;
         _photoLibraryView.photoSelected=^(id obj,UIImage *img){
-            NSMutableDictionary *dic=(NSMutableDictionary*)weakSelf.dataArray[weakSelf.photoLibraryView.tag];
-            [dic setValue:img forKey:@"image"];
+            DishListStepModel *dic=weakSelf.dataArray[weakSelf.photoLibraryView.tag];
+            dic.image=img;
             [weakSelf.tableView reloadData];
         };
         _photoLibraryView.hiddenAction=^(id obj){
@@ -92,19 +122,17 @@
     }
     return _dataArray;
 }
-#pragma mark - Action
-
 #pragma mark - TableViewDelegate
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *str=@"Record";
-    NSDictionary *obj=[_dataArray objectAtIndex:indexPath.row];
-    if ([[obj valueForKey:@"interval"] isEqualToString:@"1"])  {
+    DishListStepModel *obj=[_dataArray objectAtIndex:indexPath.row];
+    if ([obj.interval isEqualToString:@"1"])  {
         DishRecord_TimeCell *cell=[tableView dequeueReusableCellWithIdentifier:str];;
         if (cell==nil) {
             cell=[DishRecord_TimeCell loadNib];
         }
-        [cell setValueToViewsWith:obj[@"content"]];
+        [cell setValueToViewsWith:obj.title];
         return cell;
     }
     DishRecordCell *cell=[tableView dequeueReusableCellWithIdentifier:str];
@@ -113,13 +141,13 @@
         __block NSIndexPath *tmp=indexPath;
         cell=[[DishRecordCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:str];
         cell.voiceAction=^(DishRecordCell *tmpCell){
-            NSDictionary *message = tmpCell.dataDic;
-            NSString *voiceFileName = message[kMessageConfigurationVoiceKey];
+            DishListStepModel *message = tmpCell.dataModel;
+            NSString *voiceFileName = message.voiceFileName;
             [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:voiceFileName atIndex:indexPath.row];
         };
-        cell.photoAction=^(NSDictionary *obj){
-            if (obj[@"image"]) {
-                weakSelf.selectedDic=obj;
+        cell.photoAction=^(DishListStepModel *obj){
+            if ([obj.image isKindOfClass:[UIImage class]]||[(NSString*)obj.image length]>0) {
+                weakSelf.selectedDic=weakSelf.dataArray[tmp.row];
                 [weakSelf.view endEditing:YES];
                 [weakSelf.browserView showView];
                  weakSelf.browserView.tag=tmp.row;
@@ -141,9 +169,17 @@
             NSIndexPath *ip= [NSIndexPath indexPathForRow:[weakSelf.photosArray indexOfObject:img] inSection:0];
             [weakSelf.photoLibraryView.collectionView scrollToItemAtIndexPath:ip atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
         };
+        cell.downAction = ^(DishListStepModel *object,NSString *title) {
+            NSLog(@"old==%@  new==%@",object.title,title);
+           NSString *newStepStr=[weakSelf.stepsString stringByReplacingOccurrencesOfString:object.title withString:title];
+            weakSelf.stepsString=newStepStr;
+            object.title=title;
+            [weakSelf.tableView reloadData];
+        } ;
     }
+    cell.isEdit=YES;
     cell.tag=indexPath.row;
-    NSDictionary *message = self.dataArray[indexPath.row];
+    DishListStepModel *message = self.dataArray[indexPath.row];
     [cell configureCellWithData:message];
     
     cell.backgroundColor=UIColorFromRGB(0xF5F5F5);
@@ -169,22 +205,50 @@
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *obj=[_dataArray objectAtIndex:indexPath.row];
-    if ([[obj valueForKey:@"interval"] isEqualToString:@"1"]) {
-        return 30;
+    DishListStepModel *obj=[_dataArray objectAtIndex:indexPath.row];
+    if ([obj.interval isEqualToString:@"1"]) {
+//        return 30;
     }
     DishRecordCell *cell=(DishRecordCell*)[self tableView:_tableView cellForRowAtIndexPath:indexPath];
     return ([cell configureCellWithData:obj]+49+13+10)*Screen_Scale;
 }
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *message = self.dataArray[indexPath.row];
-    if ([message[kMessageConfigurationTypeKey] integerValue] == MessageTypeVoice)
+    DishListStepModel *message = self.dataArray[indexPath.row];
+    if ([message.typeKey integerValue] == MessageTypeVoice)
     {
         if (indexPath.row == [[XMAVAudioPlayer sharePlayer] index]){
             [(DishRecordCell *)cell setVoiceMessageState:[[XMAVAudioPlayer sharePlayer] audioPlayerState]];
         }
     }
+}
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+//定义编辑样式
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row==0||indexPath.row+1==_dataArray.count) {
+        return UITableViewCellEditingStyleNone;
+    }
+    return UITableViewCellEditingStyleDelete;
+}
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        [_dataArray removeObjectAtIndex:indexPath.row];
+        // Delete the row from the data source.
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+    }
+    else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+    }
+}
+//修改编辑按钮文字
+- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return @"删除";
 }
 #pragma mark - XMAVAudioPlayerDelegate方法
 
@@ -195,6 +259,41 @@
     dispatch_async(dispatch_get_main_queue(), ^{
                        [voiceMessageCell setVoiceMessageState:audioPlayerState];
                    });
+}
+#pragma mark - NetWorking
+-(void)getStepDetail{
+    __weak typeof(self) weakSelf=self;
+    [[NetManager sharedManager] getRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
+        weakSelf.stepsString=[responseDic[@"step"] [@"steps"] mutableCopy];
+        NSDictionary *dic=[CommonDefine analyticalData:responseDic[@"step"] [@"steps"]];
+        
+        weakSelf.dataArray=[[NSMutableArray alloc]init];
+        NSArray *stepsArr=dic[@"AllStepArr"];
+        NSArray *midiasArr=dic[@"midiaMuArr"];
+        for (int i=0; i<stepsArr.count; i++) {
+            DishListStepModel *obj=[[DishListStepModel alloc]init];
+            obj.title=[stepsArr objectAtIndex:i];
+            obj.image=[midiasArr objectAtIndex:i];
+            obj.voiceSecondsKey=@"3";
+            obj.id=[NSString stringWithFormat:@"%d",i];
+            [weakSelf.dataArray addObject:obj];
+        }
+        [weakSelf.tableView reloadData];
+    } failure:^(id errorString) {
+        
+    }];
+}
+-(void)updateStepDetail{
+    __weak typeof(self) weakSelf=self;
+    NSMutableDictionary *dic=[[NSMutableDictionary alloc]init];
+    NSMutableDictionary *tmpDic=[[NSMutableDictionary alloc]init];
+    [tmpDic setValue:_stepsString forKey:@"steps"];
+    [dic setObject:tmpDic forKey:@"step"];
+    [[NetManager sharedManager] patchRequestWithPostParamDic:dic requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
+      
+    } failure:^(id errorString) {
+        
+    }];
 }
 
 - (void)didReceiveMemoryWarning {

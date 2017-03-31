@@ -181,3 +181,6 @@
 
 @implementation DishListModel
 @end
+
+@implementation DishListStepModel
+@end

@@ -15,5 +15,5 @@
 @property (nonatomic, strong) NSString *pcmFilePath;//音频文件路径
 @property (nonatomic, strong) IFlySpeechRecognizer *iFlySpeechRecognizer;//不带界面的识别对象
 @property (nonatomic, strong) DishListModel *dishModel;//菜的信息
-@property (assign, nonatomic) BOOL isNewDish;
+
 @end

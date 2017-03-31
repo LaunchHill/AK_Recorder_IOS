@@ -117,7 +117,7 @@
     NSMutableDictionary *tmpDic=[[NSMutableDictionary alloc]init];
     [tmpDic setValue:@"1" forKey:@"user_id"];
     [tmpDic setValue:_dishNameTF.text forKey:@"title"];
-    [tmpDic setValue:[@"data:image/png;base64," stringByAppendingString:[CommonDefine base64EncodedString:_imageView.image]] forKey:@"main_image"];
+//    [tmpDic setValue:[@"data:image/png;base64," stringByAppendingString:[CommonDefine base64EncodedString:_imageView.image]] forKey:@"main_image"];
     [dic setObject:tmpDic forKey:@"recipe"];
     [self showMBProgressWithtMessage:@"新建中..."];
     [[NetManager sharedManager] postRequestWithPostParamDic:dic requestUrl:@"/api/recipes" success:^(id responseDic) {

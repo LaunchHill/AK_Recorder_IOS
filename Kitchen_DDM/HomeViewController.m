@@ -16,20 +16,23 @@
 @end
 
 @implementation HomeViewController
-
+-(void)viewWillAppear:(BOOL)animated{
+    [self getList];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setTitle:@"菜谱列表"];
     _tableView.tableFooterView=[UIView new];
     _tableView.delegate=self;
     _tableView.dataSource=self;
-    [self getList];
+    
+    
     // Do any additional setup after loading the view, typically from a nib.
 }
 - (IBAction)addDish:(UIButton *)sender {
-//    [self getList];
+    //    [self getList];
     CreateNewDishViewController *vc=[[CreateNewDishViewController alloc]initWithNibName:@"CreateNewDishViewController" bundle:nil];
-     [self.navigationController pushViewController:vc animated:YES];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 #pragma mark TableView Delegate and DataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -51,7 +54,6 @@
     }
     [cell.imgView sd_setImageWithURL:[NSURL URLWithString:(NSString*)urlStr] placeholderImage:[UIImage imageNamed:@"dishPhotoBlank"] options:SDWebImageRetryFailed completed:^(UIImage * _Nullable image, NSError * _Nullable error, SDImageCacheType cacheType, NSURL * _Nullable imageURL) {
     }];
-    
     return cell;
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath

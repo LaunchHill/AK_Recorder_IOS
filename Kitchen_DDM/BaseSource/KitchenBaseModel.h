@@ -50,6 +50,18 @@
 
 @end
 
+@interface DishListStepModel : KitchenBaseModel
+@property (strong,nonatomic) NSString *id;
+@property (strong,nonatomic) id image;
+@property (strong,nonatomic) NSString *title;
+@property (strong,nonatomic) NSString *step_id;
+@property (strong,nonatomic) NSString *content;
+@property (strong,nonatomic) NSString *voiceSecondsKey;
+@property (strong,nonatomic) NSString *voiceFileName;
+@property (strong,nonatomic) NSString *ownerKey;
+@property (strong,nonatomic) NSString *typeKey;
+@property (strong,nonatomic) NSString *interval;
+@end
 
 @interface UserBackgroundImageModel : KitchenBaseModel
 @property (strong,nonatomic) NSString *id;
@@ -74,5 +86,4 @@
 @property (strong,nonatomic) NSDictionary *main_image;
 @property (strong,nonatomic) NSString *title;
 @property (strong,nonatomic) NSString *step_id;
-
 @end

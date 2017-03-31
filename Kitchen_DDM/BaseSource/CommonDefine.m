@@ -451,7 +451,6 @@
                     [stepDic setObject:arr forKey:[NSString stringWithFormat:@"%ld",xIndex-1]];
                     [stepArr removeAllObjects];
                 }
-                
                 [xArr addObject:strIndex];
                 xIndex ++ ;
                 
@@ -508,7 +507,9 @@
 /*
  UIimage base64编码
  */
-
+//+(NSString*)assembleData:(NSString*)str{
+//    
+//}
 +(NSString*)base64EncodedString:(UIImage*)image
 {
     NSData *data = UIImagePNGRepresentation(image);

@@ -72,48 +72,80 @@
     [self addSubview:self.messageIndicatorV];
     [self addSubview:self.stepLab];
     [self addSubview:self.contentLab];
+    
     [self addSubview:self.emptyView];
     [self addSubview:self.stepImage];
-    
+    if (_isEdit) {
+         [self addSubview:self.textField];
+        _contentLab.userInteractionEnabled=YES;
+        [_contentLab addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tfShow:)]];
+         
+    }
     self.voiceMessageState = VoiceMessageStateNormal;
 }
 
-- (CGFloat)configureCellWithData:(id)data
+- (CGFloat)configureCellWithData:(DishListStepModel*)data
 {
-    _dataDic=data;
+    _dataModel=data;
      [self setup];
-    if (data[kMessageConfigurationVoiceSecondsKey])
+    if (data.voiceSecondsKey)
     {
         [self.messageContentBackgroundImageView mas_updateConstraints:^(MASConstraintMaker *make)
          {
-             make.width.equalTo(@(60 + [data[kMessageConfigurationVoiceSecondsKey] integerValue] *3));
+             make.width.equalTo(@(60 + [data.voiceSecondsKey integerValue] *3));
          }];
     }
-    self.messageVoiceSecondsL.text = [NSString stringWithFormat:@"%ld''",[data[kMessageConfigurationVoiceSecondsKey] integerValue]];
+    self.messageVoiceSecondsL.text = [NSString stringWithFormat:@"%ld''",[data.voiceSecondsKey integerValue]];
     if (self.tag<10) {
         _stepLab.text=[NSString stringWithFormat:@"0%ld",self.tag+1];
     }else{
         _stepLab.text=[NSString stringWithFormat:@"%ld",self.tag+1];
     }
-    _contentLab.text=_dataDic[@"content"];
+    _contentLab.text=data.title;
     [_contentLab sizeToFit];
-    [_stepImage setBackgroundImage:data[@"image"] forState:UIControlStateNormal];
+    [_textField setHeight:_contentLab.height];
+    if ([data.image isKindOfClass:[NSString class]] && [(NSString*)data.image length]>0) {
+    [_stepImage setImage:[UIImage imageNamed:@"backIcon"]];
+    }else{
+    [_stepImage setImage:[UIImage imageNamed:@"addIcon"]];
+    }
     return _contentLab.frame.size.height;
 }
 #pragma mark - Action
--(void)photoAction:(UIButton*)tap event:(id)event{
+-(void)photoAction:(UITapGestureRecognizer*)tap{
     if (_photoAction) {
-        _photoAction(_dataDic);
+        _photoAction(_dataModel);
     }
 }
-
+-(void)textValueChange:(UITextField*)tf{
+    _contentLab.text=tf.text;
+}
+-(void)tfShow:(UITapGestureRecognizer*)tap{
+    _textField.text=_contentLab.text;
+    _textField.hidden=NO;
+    _contentLab.hidden=YES;
+    [_textField becomeFirstResponder];
+}
+#pragma mark - TextFieldDelegate
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    _textField.hidden=YES;
+    _contentLab.hidden=NO;
+    [_contentLab setWidth:(Main_Screen_Width-41-58-15)*Screen_Scale];
+    [_contentLab sizeToFit];
+    if (_downAction) {
+        _downAction(_dataModel,_contentLab.text);
+    }
+    return YES;
+}
 #pragma mark - Getters方法
--(UIButton*)stepImage{
+-(UIImageView*)stepImage{
     if (!_stepImage) {
-        _stepImage=[UIButton buttonWithType:UIButtonTypeCustom];
+        _stepImage=[[UIImageView alloc]init];
         [_stepImage setFrame:CGRectMake(339*Screen_Scale, 38*Screen_Scale, 22*Screen_Scale, 17*Screen_Scale)];
         [_stepImage setBackgroundColor:[UIColor greenColor]];
-        [_stepImage addTarget:self action:@selector(photoAction:event:) forControlEvents:UIControlEventTouchUpInside];
+        UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(photoAction:)];
+        [_stepImage addGestureRecognizer:tap];
         _stepImage.userInteractionEnabled=YES;
     }
     return _stepImage;
@@ -128,16 +160,28 @@
 -(UILabel*)stepLab
 {
     if (!_stepLab) {
-        _stepLab=[[UILabel alloc]initWithFrame:CGRectMake(15, 17, 25*Screen_Scale, 15*Screen_Scale)];
+        _stepLab=[[UILabel alloc]initWithFrame:CGRectMake(15, 17, 29*Screen_Scale, 15*Screen_Scale)];
         _stepLab.textColor=UIColorFromRGB(0x131313);
         _stepLab.font=[UIFont fontWithName:@".SFUIDisplay-Medium" size:20*Screen_Scale];
     }
     return _stepLab;
 }
+-(UITextField*)textField{
+    if (!_textField) {
+        _textField=[[UITextField alloc]initWithFrame:CGRectMake(40, 49*Screen_Scale, (Main_Screen_Width-41-58-15)*Screen_Scale, 0)];
+        _textField.textColor=UIColorFromRGB(0x131313);
+        _textField.font=[UIFont fontWithName:@".SFUIText-Medium" size:14*Screen_Scale];
+        _textField.hidden=YES;
+        _textField.delegate=self;
+        _textField.returnKeyType=UIReturnKeyDone;
+        [_textField addTarget:self action:@selector(textValueChange:) forControlEvents:UIControlEventEditingChanged];
+    }
+    return _textField;
+}
 -(UILabel*)contentLab
 {
     if (!_contentLab) {
-        _contentLab=[[UILabel alloc]initWithFrame:CGRectMake(40, 49*Screen_Scale, (Main_Screen_Width-41-58)*Screen_Scale, 0)];
+        _contentLab=[[UILabel alloc]initWithFrame:CGRectMake(40, 49*Screen_Scale, (Main_Screen_Width-41-58-15)*Screen_Scale, 0)];
         _contentLab.textColor=UIColorFromRGB(0x131313);
         _contentLab.font=[UIFont fontWithName:@".SFUIText-Medium" size:14*Screen_Scale];
         _contentLab.preferredMaxLayoutWidth=Main_Screen_Width-41-58;

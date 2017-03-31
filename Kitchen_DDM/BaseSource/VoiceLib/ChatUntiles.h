@@ -93,11 +93,11 @@ typedef NS_ENUM(NSUInteger, ChatMessageCellMenuActionType)
 /**
  *  消息类型的key
  */
-static NSString *const kMessageConfigurationTypeKey = @"com.fritt.kMessageConfigurationTypeKey";
+static NSString *const kMessageConfigurationTypeKey = @"typeKey";
 /**
  *  消息拥有者的key
  */
-static NSString *const kMessageConfigurationOwnerKey = @"com.fritt.kMessageConfigurationOwnerKey";
+static NSString *const kMessageConfigurationOwnerKey = @"ownerKey";
 /**
  *  消息群组类型的key
  */
@@ -141,12 +141,12 @@ static NSString *const kMessageConfigurationVideoKey = @"com.fritt.kMessageConfi
  *  语音消息内容的key
  */
 
-static NSString *const kMessageConfigurationVoiceKey = @"com.fritt.kMessageConfigurationVoiceKey";
+static NSString *const kMessageConfigurationVoiceKey = @"voiceFileName";
 
 /**
  *  语音消息时长key
  */
-static NSString *const kMessageConfigurationVoiceSecondsKey = @"com.fritt.kMessageConfigurationVoiceSecondsKey";
+static NSString *const kMessageConfigurationVoiceSecondsKey = @"voiceSecondsKey";
 
 /**
  *  地理位置消息内容的key

@@ -12,4 +12,6 @@
 @property (strong, nonatomic) NSMutableArray *dataArray;
 @property (strong, nonatomic) NSMutableArray *photosArray;/**图片资源*/
 @property (strong, nonatomic) NSMutableDictionary *photosDic;/**图片排序*/
+@property (nonatomic, strong) DishListModel *dishModel;//菜的信息
+@property (assign, nonatomic) BOOL isNewDish;
 @end

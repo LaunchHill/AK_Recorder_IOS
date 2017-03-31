@@ -72,10 +72,7 @@
     self.MP3 = [[Mp3Recorder alloc] initWithDelegate:self];
     UIBarButtonItem *bar=[[UIBarButtonItem alloc]initWithTitle:@"Next" style:UIBarButtonItemStylePlain target:self action:@selector(NextStep:)];
     [self.navigationItem setRightBarButtonItem:bar];
-    if (!_isNewDish) {
-         [self getStepDetail];
-        _backViewHeightLayout.constant=0;
-    }
+  
     // Do any additional setup after loading the view from its nib.
 }
 #pragma mark - 初始化
@@ -387,12 +384,13 @@
     [self.MP3PathsArray addObject:voiceFileName];
     NSMutableDictionary *voiceMessageDict = [NSMutableDictionary dictionary];
     [voiceMessageDict setValue:@"0" forKey:@"interval"];
-    voiceMessageDict[@"content"]                           = [_resultFromJson copy];
+    voiceMessageDict[@"title"]                             = [_resultFromJson copy];
     voiceMessageDict[kMessageConfigurationTypeKey]         = @(MessageTypeVoice);
     voiceMessageDict[kMessageConfigurationOwnerKey]        = @(MessageOwnerSelf);
     voiceMessageDict[kMessageConfigurationVoiceKey]        = voiceFileName;
     voiceMessageDict[kMessageConfigurationVoiceSecondsKey] = @(seconds);
-    [self.dataArray addObject:voiceMessageDict];
+    DishListStepModel *model=[DishListStepModel instancefromJsonDic:voiceMessageDict];
+    [self.dataArray addObject:model];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:_dataArray.count - 1 inSection:0];
     [self.tableView reloadData];
     [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:NO];
@@ -510,15 +508,14 @@
         __weak typeof(self)weakSelf = self;
         cell=[[DishRecordCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:str];
         cell.voiceAction=^(DishRecordCell *tmpCell){
-            NSDictionary *message = tmpCell.dataDic;
-            NSString *voiceFileName = message[kMessageConfigurationVoiceKey];
+            DishListStepModel *message = tmpCell.dataModel;
+            NSString *voiceFileName = message.voiceFileName;
             [[XMAVAudioPlayer sharePlayer] playAudioWithURLString:voiceFileName atIndex:indexPath.row];
         };
         cell.stepImage.hidden=YES;
     }
-    
     cell.tag=indexPath.row;
-    NSDictionary *message = self.dataArray[indexPath.row];
+    DishListStepModel *message = self.dataArray[indexPath.row];
     [cell configureCellWithData:message];
     cell.backgroundColor=UIColorFromRGB(0xF5F5F5);
     return cell;
@@ -528,7 +525,7 @@
 }
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *obj=[_dataArray objectAtIndex:indexPath.row];
+    DishListStepModel *obj=[_dataArray objectAtIndex:indexPath.row];
     if ([[obj valueForKey:@"interval"] isEqualToString:@"1"]) {
         return 30;
     }
@@ -537,8 +534,8 @@
 }
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDictionary *message = self.dataArray[indexPath.row];
-    if ([message[kMessageConfigurationTypeKey] integerValue] == MessageTypeVoice)
+    DishListStepModel *messageModel = self.dataArray[indexPath.row];
+    if ([messageModel.typeKey integerValue] == MessageTypeVoice)
     {
         if (indexPath.row == [[XMAVAudioPlayer sharePlayer] index])
         {
@@ -546,26 +543,7 @@
         }
     }
 }
-#pragma mark - NetWorking
--(void)getStepDetail{
-    __weak typeof(self) weakSelf=self;
-    [[NetManager sharedManager] getRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
-        NSDictionary *dic=[CommonDefine analyticalData:responseDic[@"step"] [@"steps"]];
-        weakSelf.dataArray=[NSMutableArray arrayWithArray:[DishStepModel instancesFromJsonArray:responseDic[@"step"]]];
-        [weakSelf.tableView reloadData];
-    } failure:^(id errorString) {
-        
-    }];
-}
--(void)updateStepDetail{
-    __weak typeof(self) weakSelf=self;
-    [[NetManager sharedManager] patchRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
-        weakSelf.dataArray=[NSMutableArray arrayWithArray:[DishStepModel instancesFromJsonArray:responseDic[@"step"]]];
-        [weakSelf.tableView reloadData];
-    } failure:^(id errorString) {
-        
-    }];
-}
+
 #pragma mark - Memory
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
