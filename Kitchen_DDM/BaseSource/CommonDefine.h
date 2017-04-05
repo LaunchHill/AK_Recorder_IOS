@@ -231,9 +231,13 @@ typedef enum{
 + (UIImage*) createImageWithColor: (UIColor*) color;
 
 /**
- 步序的数据解析
+ step的数据解析
  */
 +(NSDictionary *)analyticalData:(NSString *)str;
+/**
+ content的数据解析
+ */
++(NSMutableArray*)analyticalContentData:(NSString*)str;
 /*
  UIimage base64编码
  */

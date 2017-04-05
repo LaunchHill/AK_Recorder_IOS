@@ -19,6 +19,15 @@
 +(id)loadNib
 {
     EditView *view=[[[NSBundle mainBundle] loadNibNamed:@"EditView" owner:nil options:nil]lastObject];
+
+//#error 单位选择根据设计稿
+//#error 编辑状态的数据缓存
+//#error 单位的文本框 超出限制字体变小
+//#error 食材处理方法加载
+//#error add 点击直接选择图片  查看直接打开预览
+    [view.nameTF setValue:UIColorFromRGB(0x8e8e8e) forKeyPath:@"_placeholderLabel.textColor"];
+    [view.quantityTf setValue:UIColorFromRGB(0x8e8e8e) forKeyPath:@"_placeholderLabel.textColor"];
+    [view.methodTF setValue:UIColorFromRGB(0x8e8e8e)  forKeyPath:@"_placeholderLabel.textColor"];
     return view;
 }
 -(void)setValueToViewsWith:(DishStepModel*)model{

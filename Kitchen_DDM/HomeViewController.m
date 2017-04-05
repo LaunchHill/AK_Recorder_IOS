@@ -17,16 +17,16 @@
 
 @implementation HomeViewController
 -(void)viewWillAppear:(BOOL)animated{
-    [self getList];
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self setTitle:@"菜谱列表"];
-    _tableView.tableFooterView=[UIView new];
+    [self setTitle:@"菜谱列表"];    _tableView.tableFooterView=[UIView new];
     _tableView.delegate=self;
     _tableView.dataSource=self;
-    
-    
+    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [self getList];
+    }];
+    [self.tableView.mj_header beginRefreshing];
     // Do any additional setup after loading the view, typically from a nib.
 }
 - (IBAction)addDish:(UIButton *)sender {
@@ -74,6 +74,7 @@
     [dic setValue:@"1" forKey:@"page"];
     [dic setValue:@"20" forKey:@"per_page"];
     [[NetManager sharedManager] getRequestWithPostParamDic:dic requestUrl:@"/api/recipes" success:^(id responseDic) {
+        [self.tableView.mj_header endRefreshing];
         weakSelf.dataArray=[NSMutableArray arrayWithArray:[DishListModel instancesFromJsonArray:responseDic[@"recipes"]]];
         [weakSelf.tableView reloadData];
     } failure:^(id errorString) {

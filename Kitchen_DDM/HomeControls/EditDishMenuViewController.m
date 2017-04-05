@@ -1,4 +1,4 @@
- //
+//
 //  EditDishMenuViewController.m
 //  Kitchen_DDM
 //
@@ -46,7 +46,7 @@
     manager.shouldResignOnTouchOutside = YES;
     manager.shouldToolbarUsesTextFieldTintColor = YES;
     manager.enableAutoToolbar = NO;
-
+    
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -86,7 +86,7 @@
         _browserView.alpha=0;
         _browserView.hiddenEndAction=^(id obj){
             weakSelf.browserView=nil;
-            };
+        };
         _browserView.removeAction=^(id obj){
             DishListStepModel *dic=weakSelf.dataArray[weakSelf.browserView.tag];
             dic.image=nil;
@@ -111,7 +111,7 @@
             [weakSelf.tableView reloadData];
         };
         _photoLibraryView.hiddenAction=^(id obj){
-             [weakSelf.tableView setContentOffset:CGPointMake(weakSelf.contentoffset.x,weakSelf.contentoffset.y) animated:YES];
+            [weakSelf.tableView setContentOffset:CGPointMake(weakSelf.contentoffset.x,weakSelf.contentoffset.y) animated:YES];
         };
     }
     return _photoLibraryView;
@@ -150,15 +150,15 @@
                 weakSelf.selectedDic=weakSelf.dataArray[tmp.row];
                 [weakSelf.view endEditing:YES];
                 [weakSelf.browserView showView];
-                 weakSelf.browserView.tag=tmp.row;
+                weakSelf.browserView.tag=tmp.row;
                 return ;
             }
             [weakSelf.photoLibraryView showView];
             [weakSelf.photoLibraryView reloadCollectionViewWith:weakSelf.photosArray];
             weakSelf.photoLibraryView.tag=tmp.row;
-//            NSSet *touches = [obj allTouches];   // 把触摸的事件放到集合里
-//            UITouch *touch = [touches anyObject];   //把事件放到触摸的对象了
-//            CGPoint currentTouchPosition = [touch locationInView:weakSelf.view]; //把触发的这个点转成二位坐标
+            //            NSSet *touches = [obj allTouches];   // 把触摸的事件放到集合里
+            //            UITouch *touch = [touches anyObject];   //把事件放到触摸的对象了
+            //            CGPoint currentTouchPosition = [touch locationInView:weakSelf.view]; //把触发的这个点转成二位坐标
             //获取当前cell在tableview中的位置
             [weakSelf moveViewWith:tmp];
             
@@ -171,7 +171,7 @@
         };
         cell.downAction = ^(DishListStepModel *object,NSString *title) {
             NSLog(@"old==%@  new==%@",object.title,title);
-           NSString *newStepStr=[weakSelf.stepsString stringByReplacingOccurrencesOfString:object.title withString:title];
+            NSString *newStepStr=[weakSelf.stepsString stringByReplacingOccurrencesOfString:object.title withString:title];
             weakSelf.stepsString=newStepStr;
             object.title=title;
             [weakSelf.tableView reloadData];
@@ -198,7 +198,7 @@
 }
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-     NSLog(@"\n x==%0.2f \n y==%0.2f",self.tableView.contentOffset.x,self.tableView.contentOffset.y);
+    NSLog(@"\n x==%0.2f \n y==%0.2f",self.tableView.contentOffset.x,self.tableView.contentOffset.y);
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     return _dataArray.count;
@@ -207,7 +207,7 @@
 {
     DishListStepModel *obj=[_dataArray objectAtIndex:indexPath.row];
     if ([obj.interval isEqualToString:@"1"]) {
-//        return 30;
+        //        return 30;
     }
     DishRecordCell *cell=(DishRecordCell*)[self tableView:_tableView cellForRowAtIndexPath:indexPath];
     return ([cell configureCellWithData:obj]+49+13+10)*Screen_Scale;
@@ -257,16 +257,16 @@
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
     DishRecordCell *voiceMessageCell = [self.tableView cellForRowAtIndexPath:indexPath];
     dispatch_async(dispatch_get_main_queue(), ^{
-                       [voiceMessageCell setVoiceMessageState:audioPlayerState];
-                   });
+        [voiceMessageCell setVoiceMessageState:audioPlayerState];
+    });
 }
 #pragma mark - NetWorking
 -(void)getStepDetail{
     __weak typeof(self) weakSelf=self;
     [[NetManager sharedManager] getRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
-        weakSelf.stepsString=[responseDic[@"step"] [@"steps"] mutableCopy];
+        weakSelf.stepsString=[responseDic[@"step"] [@"content"] mutableCopy];
+        //        NSMutableArray *tmpSteps=[CommonDefine analyticalContentData:responseDic[@"step"] [@"content"]];
         NSDictionary *dic=[CommonDefine analyticalData:responseDic[@"step"] [@"steps"]];
-        
         weakSelf.dataArray=[[NSMutableArray alloc]init];
         NSArray *stepsArr=dic[@"AllStepArr"];
         NSArray *midiasArr=dic[@"midiaMuArr"];
@@ -287,28 +287,37 @@
     __weak typeof(self) weakSelf=self;
     NSMutableDictionary *dic=[[NSMutableDictionary alloc]init];
     NSMutableDictionary *tmpDic=[[NSMutableDictionary alloc]init];
-    [tmpDic setValue:_stepsString forKey:@"steps"];
+    [tmpDic setValue:_stepsString forKey:@"content"];
     [dic setObject:tmpDic forKey:@"step"];
     [[NetManager sharedManager] patchRequestWithPostParamDic:dic requestUrl:[NSString stringWithFormat:@"/api/steps/%@",_dishModel.step_id] success:^(id responseDic) {
-      
+        [weakSelf convertStep];
+        
     } failure:^(id errorString) {
         
     }];
 }
-
+-(void)convertStep{
+    __weak typeof(self) weakSelf=self;
+    [[NetManager sharedManager] getRequestWithPostParamDic:nil requestUrl:[NSString stringWithFormat:@"/api/steps/%@/convert",_dishModel.step_id] success:^(id responseDic) {
+        [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+    } failure:^(id errorString) {
+//#error 编辑过返回要有提示
+    }];
+    
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

@@ -425,9 +425,7 @@
 +(NSDictionary *)analyticalData:(NSString *)str
 {
     // 把string以分行符区分转成数组
-    
     NSArray * arr = [str componentsSeparatedByString:@"<br>"];
-    
     NSMutableArray * xArr  = [[NSMutableArray alloc] init] ;
     NSMutableArray * stepArr = [[NSMutableArray alloc] init];
     [stepArr removeAllObjects];
@@ -510,6 +508,16 @@
 //+(NSString*)assembleData:(NSString*)str{
 //    
 //}
++(NSMutableArray*)analyticalContentData:(NSString*)str{
+    NSMutableArray *stepsArr=[[NSMutableArray alloc]init];
+    NSArray * tmpStepsArr = [str componentsSeparatedByString:@"<br><br>"];
+    for (int i=0; i<tmpStepsArr.count; i++) {
+        NSString *stepStr=[tmpStepsArr objectAtIndex:i];
+        NSArray *stepDataArr=[stepStr componentsSeparatedByString:@"<br>"];
+        [stepsArr addObject:stepDataArr];
+    }
+    return stepsArr;
+}
 +(NSString*)base64EncodedString:(UIImage*)image
 {
     NSData *data = UIImagePNGRepresentation(image);

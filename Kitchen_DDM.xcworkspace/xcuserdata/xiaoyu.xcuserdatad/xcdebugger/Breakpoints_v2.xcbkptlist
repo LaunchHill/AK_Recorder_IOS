@@ -41,22 +41,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Kitchen_DDM/HomeControls/DishRecordViewController.m"
-            timestampString = "512631272.114933"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "385"
-            endingLineNumber = "385"
-            landmarkName = "-sendVoiceMessage:seconds:"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "Kitchen_DDM/BaseSource/WEBDataManager/NetManager.m"
             timestampString = "512645517.320977"
             startingColumnNumber = "9223372036854775807"
@@ -70,49 +54,49 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kitchen_DDM/BaseSource/CommonDefine.m"
+            timestampString = "512717933.563144"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "517"
+            endingLineNumber = "517"
+            landmarkName = "+analyticalContentData:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Kitchen_DDM/HomeControls/EditDishMenuViewController.m"
-            timestampString = "512648225.623296"
+            timestampString = "512721462.441581"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "293"
-            endingLineNumber = "293"
-            landmarkName = "-updateStepDetail"
+            startingLineNumber = "302"
+            endingLineNumber = "302"
+            landmarkName = "-convertStep"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__46-[EditDishMenuViewController updateStepDetail]_block_invoke"
-                  moduleName = "Kitchen_DDM"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/dev_ios/Desktop/AK_DDM/Kitchen_DDM/Kitchen_DDM/HomeControls/EditDishMenuViewController.m"
-                  timestampString = "512648226.760919"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "294"
-                  endingLineNumber = "294"
-                  offsetFromSymbolStart = "56">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__46-[EditDishMenuViewController updateStepDetail]_block_invoke_2"
-                  moduleName = "Kitchen_DDM"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/dev_ios/Desktop/AK_DDM/Kitchen_DDM/Kitchen_DDM/HomeControls/EditDishMenuViewController.m"
-                  timestampString = "512648226.762187"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "296"
-                  endingLineNumber = "296"
-                  offsetFromSymbolStart = "56">
-               </Location>
-            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Kitchen_DDM/HomeControls/DishRecordViewController.m"
+            timestampString = "512721699.352305"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "512"
+            endingLineNumber = "512"
+            landmarkName = "-tableView:cellForRowAtIndexPath:"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
